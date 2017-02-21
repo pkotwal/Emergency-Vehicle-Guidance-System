@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:background="#ddd">
+
+
+    <TextView
+        android:text="Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:textSize="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:hint="First Name"
+            android:background="#fff"
+            android:padding="10dp"
+            android:ems="10"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:id="@+id/et_login_name" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:hint="Last Name"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:padding="10dp"
+            android:ems="10"
+            android:id="@+id/et_login_last_name" />
+
+    </LinearLayout>
+
+    <TextView
+        android:text="Vehicle Registration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:textSize="20dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:weightSum="7">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:hint="MH"
+            android:layout_weight="1.9"
+            android:background="#fff"
+            android:padding="10dp"
+            android:layout_margin="2dp"
+            android:id="@+id/et_login_vehicle_reg1" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:hint="01"
+            android:background="#fff"
+            android:padding="10dp"
+            android:layout_margin="2dp"
+            android:layout_weight="2"
+            android:id="@+id/et_login_vehicle_reg2" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:layout_weight="2"
+            android:ems="10"
+            android:hint="AD"
+            android:background="#fff"
+            android:padding="10dp"
+            android:layout_margin="2dp"
+            android:id="@+id/et_login_vehicle_reg3" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.55"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:hint="1234"
+            android:background="#fff"
+            android:padding="10dp"
+            android:layout_margin="2dp"
+            android:id="@+id/et_login_vehicle_reg4" />
+
+    </LinearLayout>
+
+    <TextView
+        android:text="Vehicle Type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:textSize="20dp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rg_login_rg">
+
+        <RadioButton
+            android:text="Ambulance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:id="@+id/radioButton1" />
+        <RadioButton
+            android:text="Police Vehicle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton2" />
+        <RadioButton
+            android:text="Fire Truck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton3" />
+    </RadioGroup>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_gravity="center"
+        android:id="@+id/b_login_submit"/>
+</LinearLayout>
