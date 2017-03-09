@@ -1,8 +1,11 @@
 package com.pratik.locationtest;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -13,7 +16,7 @@ import com.android.volley.toolbox.Volley;
 /**
  * Created by pratik on 08-Apr-16.
  */
-public class AppController extends Application {
+public class AppController extends MultiDexApplication {
     public static final String TAG = AppController.class.getSimpleName();
     public static final String VOLLEY_ERROR_TAG = "VOLLEY_ERROR";
     public static final String RESPONSE_TAG = "RESPONSE";
@@ -57,4 +60,10 @@ public class AppController extends Application {
             mRequestQueue.cancelAll(tag);
         }
     }
+
+//    @Override
+//    protected void attachBaseContext(Context newBase) {
+//        super.attachBaseContext(newBase);
+//        MultiDex.install(this);
+//    }
 }

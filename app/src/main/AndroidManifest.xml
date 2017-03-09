@@ -13,7 +13,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FlashScreen"
+        <activity
+            android:name=".FlashScreen"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,18 +33,25 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
             android:name=".MapsActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PickDestination"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".Login" android:screenOrientation="portrait"/>
-        <activity android:name=".PickDestination" android:screenOrientation="portrait"/>
+        <service
+            android:name=".GeofenceTransitionsIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
