@@ -22,6 +22,8 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,64 +67,74 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        dialog.displayDialog("Signing In...");
+        final String token = FirebaseInstanceId.getInstance().getToken();
+        Log.i(TAG,"Token is:"+ token);
         n = name.getText().toString() + " " + last_name.getText().toString();
         String r1 = reg1.getText().toString();
         String r2 = reg2.getText().toString();
         String r3 = reg3.getText().toString();
         String r4 = reg4.getText().toString();
-        int selectedId = radioGroup.getCheckedRadioButtonId();
+        final int selectedId = radioGroup.getCheckedRadioButtonId();
 
         // find the radiobutton by returned id
         radioButton = (RadioButton) findViewById(selectedId);
-
         reg = r1+"-"+r2+"-"+r3+"-"+r4;
         type = radioButton.getText().toString();
-//        Log.d(TAG,"Name: "+n);
-//        Log.d(TAG,"Registration: "+reg);
-//        Log.d(TAG,"Vehicle Type: "+type);
 
-        StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site+"/login",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.i(TAG,response);
-                        try {
-                            dialog.dismissDialog();
-                            JSONObject jsonResponse = new JSONObject(response);
-                            JSONObject user = jsonResponse.getJSONObject("user");
-                            String name = user.getString("name");
-                            String id = user.getString("_id");
-                            String type = user.getString("vehicle_type");
-                            String registration = user.getString("vehicle_registration");
+        if(n.length()>0 && r1.length()>0 && r2.length()>0 && r3.length()>0 && r4.length()>0){
+            dialog.displayDialog("Signing In...");
+            StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site+"/login",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.i(TAG,response);
+                            try {
+                                dialog.dismissDialog();
+                                JSONObject jsonResponse = new JSONObject(response);
+                                String status = jsonResponse.getString("state");
+                                if(status.contentEquals("SUCCESS")){
+                                    JSONObject user = jsonResponse.getJSONObject("user");
+                                    String name = user.getString("name");
+                                    String id = user.getString("_id");
+                                    String type = user.getString("vehicle_type");
+                                    String registration = user.getString("vehicle_registration");
 
-                            SharedPrefs sharedPrefs = new SharedPrefs(getApplicationContext());
-                            sharedPrefs.addPrefs(SharedPrefs.USER_ID,id);
-                            sharedPrefs.addPrefs(SharedPrefs.NAME,name);
-                            sharedPrefs.addPrefs(SharedPrefs.VEHICLE_REGISTRATION,registration);
-                            sharedPrefs.addPrefs(SharedPrefs.VEHICLE_TYPE,type);
-                            startActivity(new Intent(getApplicationContext(), PickDestination.class));
-                            finish();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                                    SharedPrefs sharedPrefs = new SharedPrefs(getApplicationContext());
+                                    sharedPrefs.addPrefs(SharedPrefs.USER_ID,id);
+                                    sharedPrefs.addPrefs(SharedPrefs.NAME,name);
+                                    sharedPrefs.addPrefs(SharedPrefs.VEHICLE_REGISTRATION,registration);
+                                    sharedPrefs.addPrefs(SharedPrefs.VEHICLE_TYPE,type);
+                                    sharedPrefs.addPrefs(SharedPrefs.FCM_ID, token);
+                                    startActivity(new Intent(getApplicationContext(), PickDestination.class));
+                                    finish();
+                                }else{
+                                    String message = jsonResponse.getString("message");
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
 
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                // the POST parameters:
-                params.put("name", n);
-                params.put("registration", reg);
-                params.put("type", type);
-                return params;
-            }
-        };
-        AppController.getInstance().addToRequestQueue(request);
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    // the POST parameters:
+                    params.put("name", n);
+                    params.put("registration", reg);
+                    params.put("type", type);
+                    params.put("fcm", token);
+                    return params;
+                }
+            };
+            AppController.getInstance().addToRequestQueue(request);
+        }else {
+            Toast.makeText(getApplicationContext(), "Missing Fields", Toast.LENGTH_SHORT).show();
+        }
     }
 }

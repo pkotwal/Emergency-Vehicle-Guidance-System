@@ -114,6 +114,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             JSONObject jsonObject = new JSONObject(response);
+
             signals = jsonObject.getJSONArray("signals");
             SIGNAL_LENGTH=signals.length();
             for(int i=0; i<signals.length(); i++){
@@ -141,9 +142,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String directionsString = jsonObject.getString("directions");
             JSONObject directions = new JSONObject(directionsString);
             JSONArray routes = directions.getJSONArray("routes");
-            JSONObject overview = routes.getJSONObject(0).getJSONObject("overview_polyline");
-            String points = overview.getString("points");
-            polyline_points = PolyUtil.decode(points);
+            JSONArray legs = routes.getJSONObject(0).getJSONArray("legs");
+            JSONArray steps = legs.getJSONObject(0).getJSONArray("steps");
+            for(int i=0; i<steps.length(); i++){
+                JSONObject poly = steps.getJSONObject(i).getJSONObject("polyline");
+                String points = poly.getString("points");
+                polyline_points.addAll(PolyUtil.decode(points));
+//                Log.i(TAG, points);
+            }
+//            JSONObject overview = routes.getJSONObject(0).getJSONObject("overview_polyline");
+//            String points = overview.getString("points");
+
             Log.i(TAG, String.valueOf(signal_coords));
 
             // Get the geofences used. Geofence data is hard coded in this sample.
@@ -188,6 +197,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
         super.onStop();
+        Networking.resetAllSignals(id);
+        Log.i(TAG, "popo");
         LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
@@ -399,11 +410,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void RepositionCamera(Location location){
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(location.getLatitude(),location.getLongitude()))      // Sets the center of the map to Mountain View
-                .zoom(20)                   // Sets the zoom
-                .bearing(location.getBearing())                // Sets the orientation of the camera to east
-                .tilt(75)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
+                .target(new LatLng(location.getLatitude(),location.getLongitude()))
+                .zoom(20)
+                .bearing(location.getBearing())
+                .tilt(75)
+                .build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 

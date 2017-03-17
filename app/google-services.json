@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "390384321326",
+    "firebase_url": "https://myapplication-copy.firebaseio.com",
+    "project_id": "myapplication-copy",
+    "storage_bucket": "myapplication-copy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390384321326:android:0d9eba34d5d3c3bf",
+        "android_client_info": {
+          "package_name": "com.pratik.locationtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "390384321326-a8iepa4t0pdqhkiu79mappcmcca1f3jg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pratik.locationtest",
+            "certificate_hash": "8cf98364ebfc573045e1577b306d6d2e87de8ab5"
+          }
+        },
+        {
+          "client_id": "390384321326-k5hmq4f1a3gf66bjtsl13mb1er44og1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB__Adfifk2Lsnebs2TfjY9wLHCh_rA8rI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "390384321326-k5hmq4f1a3gf66bjtsl13mb1er44og1a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

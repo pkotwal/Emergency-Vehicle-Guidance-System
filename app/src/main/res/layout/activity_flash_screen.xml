@@ -22,9 +22,10 @@
         android:id="@+id/textView" />
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/ic_launcher"
+        android:layout_width="211dp"
+        android:layout_height="186dp"
+        app:srcCompat="@drawable/logo1"
+        android:layout_gravity="center"
         android:id="@+id/imageView" />
 
     <TextView

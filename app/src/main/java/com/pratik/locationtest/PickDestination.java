@@ -8,9 +8,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -42,6 +44,9 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +62,9 @@ public class PickDestination extends AppCompatActivity implements GoogleApiClien
     TextView selectedSource, selectedSourceAddr, selectedDestination, selectedDestinationAddr;
     private LocationRequest mLocationRequest;
     ProgressDialog dialog;
+    String response, lat, lng;
+    AddressResultReceiver mResultReceiver;
+    protected String mAddressOutput;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +83,21 @@ public class PickDestination extends AppCompatActivity implements GoogleApiClien
 
         sourseSet=0;
         destinationSet=0;
+        mResultReceiver = new AddressResultReceiver(new Handler());
+
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null){
+            response = extras.getString("Data");
+            String[] loc = response.split(",");
+            lat=loc[0];
+            lng=loc[1];
+            selectedDestination.setText(lat+" , "+lng);
+            dLocation= new Location("");
+            dLocation.setLatitude(Double.parseDouble(lat));
+            dLocation.setLongitude(Double.parseDouble(lng));
+            destinationSet=1;
+            startIntentService(dLocation);
+        }
 
         SharedPrefs sharedPrefs = new SharedPrefs(this);
         id = sharedPrefs.getPrefs(SharedPrefs.USER_ID, null);
@@ -133,9 +156,19 @@ public class PickDestination extends AppCompatActivity implements GoogleApiClien
 
 //                                Log.i(TAG,response);
                                 dialog.dismissDialog();
-                                Intent intent = new Intent(PickDestination.this, MapsActivity.class);
-                                intent.putExtra("Directions", response);
-                                startActivity(intent);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    String status = jsonObject.getString("status");
+                                    if(status.contentEquals("SUCCESS")){
+                                        Intent intent = new Intent(PickDestination.this, MapsActivity.class);
+                                        intent.putExtra("Directions", response);
+                                        startActivity(intent);
+                                    }else{
+                                        Toast.makeText(getApplicationContext(), "No routes found", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }, new Response.ErrorListener() {
                     @Override
@@ -147,6 +180,8 @@ public class PickDestination extends AppCompatActivity implements GoogleApiClien
                     protected Map<String, String> getParams() {
                         Map<String, String> params = new HashMap<>();
                         // the POST parameters:
+                        Log.i(TAG, id);
+                        params.put("userId", id);
                         params.put("slat", String.valueOf(sLocation.getLatitude()));
                         params.put("slong", String.valueOf(sLocation.getLongitude()));
                         params.put("dlat", String.valueOf(dLocation.getLatitude()));
@@ -285,6 +320,41 @@ public class PickDestination extends AppCompatActivity implements GoogleApiClien
                     likelyPlaces.release();
                 }
             });
+        }
+    }
+
+    protected void startIntentService(Location location) {
+        // Create an intent for passing to the intent service responsible for fetching the address.
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+
+        // Pass the result receiver as an extra to the service.
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+
+        // Pass the location data as an extra to the service.
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, location);
+
+        // Start the service. If the service isn't already running, it is instantiated and started
+        // (creating a process for it if needed); if it is running then it remains running. The
+        // service kills itself automatically once all intents are processed.
+        startService(intent);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        /**
+         *  Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
+         */
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string or an error message sent from the intent service.
+            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            Log.i(TAG, mAddressOutput);
+            mAddressOutput = mAddressOutput.replace('\n',' ');
+            selectedDestinationAddr.setText(mAddressOutput);
         }
     }
 }

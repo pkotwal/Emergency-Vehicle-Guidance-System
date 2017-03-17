@@ -15,6 +15,7 @@ public class SharedPrefs {
     public static final String NAME="NAME";
     public static final String VEHICLE_TYPE="VEHICLE_TYPE";
     public static final String VEHICLE_REGISTRATION="VEHICLE_REGISTRATION";
+    public static final String FCM_ID="FCM_ID";
 
     public SharedPrefs(Context context){
         this.context=context;

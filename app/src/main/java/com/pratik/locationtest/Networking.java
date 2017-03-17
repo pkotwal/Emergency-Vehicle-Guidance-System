@@ -71,4 +71,29 @@ public class Networking {
         AppController.getInstance().addToRequestQueue(request);
     }
 
+    public static void resetAllSignals(final String user_id){
+        Log.i("Networking Class", "Signal Change Method called");
+        StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site+"/resetAll",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("Networking Class",response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                // the POST parameters:
+                params.put("user_id",user_id);
+                return params;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request);
+    }
+
 }

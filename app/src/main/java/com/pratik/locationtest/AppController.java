@@ -12,6 +12,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.FirebaseApp;
 
 /**
  * Created by pratik on 08-Apr-16.
@@ -30,6 +31,7 @@ public class AppController extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        FirebaseApp.initializeApp(getApplicationContext());
     }
 
     public static synchronized AppController getInstance() {
