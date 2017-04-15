@@ -3,7 +3,10 @@ package com.pratik.locationtest;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,9 +17,13 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,11 +76,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected ArrayList<Geofence> mGeofenceList;
 
+    public static final String FINISH_ALERT = "finish_alert";
+
     private GoogleMap mMap;
     private static final String TAG = "MapsActivity";
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    List<LatLng> polyline_points, signal_coords;
+    List<LatLng> polyline_points, signal_coords, direction_points;
     Polyline polyline;
     PolylineOptions polylineOptions;
     Location mLastLocation;
@@ -81,9 +90,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String id;
     Button startNavigation, stopNavigation;
     TextView tbtNavigation;
+    LatLng end;
+    int total_geo;
 
     public static int SIGNAL_LENGTH;
     public static JSONArray signals;
+    public static List<String> directions, dists, times;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,16 +112,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startNavigation = (Button)findViewById(R.id.b_start_navigation);
         stopNavigation = (Button)findViewById(R.id.b_quit_navigation);
         tbtNavigation = (TextView) findViewById(R.id.tv_tbt_directions);
+//        tbtDist = (TextView) findViewById(R.id.tv_tbt_directions_dist);
+//        tbtTime = (TextView) findViewById(R.id.tv_tbt_directions_time);
+//        ll = (LinearLayout) findViewById(R.id.ll_directions);
         startNavigation.setOnClickListener(this);
         stopNavigation.setOnClickListener(this);
         navigation_flag=false;
         first_time_navigate=false;
+
+        this.registerReceiver(this.finishAlert, new IntentFilter(FINISH_ALERT));
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
         mapFragment.getMapAsync(this);
         polyline_points=new ArrayList<LatLng>();
         signal_coords=new ArrayList<LatLng>();
+        direction_points=new ArrayList<LatLng>();
+        directions=new ArrayList<String>();
+        dists=new ArrayList<String>();
+        times=new ArrayList<String>();
 
         String response = getIntent().getStringExtra("Directions");
 
@@ -117,6 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             signals = jsonObject.getJSONArray("signals");
             SIGNAL_LENGTH=signals.length();
+            total_geo = signals.length();
             for(int i=0; i<signals.length(); i++){
                 JSONObject signal = signals.getJSONObject(i);
                 String signalID = signal.getString("_id");
@@ -128,7 +151,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 signal_coords.add(signal_loc);
 
                 mGeofenceList.add(new Geofence.Builder()
-                        .setRequestId(i+"")
+                        .setRequestId("Signal "+i)
                         .setCircularRegion(
                                 Double.parseDouble(signal_lat),
                                 Double.parseDouble(signal_lon),
@@ -143,10 +166,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONObject directions = new JSONObject(directionsString);
             JSONArray routes = directions.getJSONArray("routes");
             JSONArray legs = routes.getJSONObject(0).getJSONArray("legs");
+            JSONObject end_location = legs.getJSONObject(0).getJSONObject("end_location");
+            double end_lat = end_location.getDouble("lat");
+            double end_lng = end_location.getDouble("lng");
+            end = new LatLng(end_lat, end_lng);
+
+            mGeofenceList.add(new Geofence.Builder()
+                    .setRequestId("End Directions")
+                    .setCircularRegion(
+                            end_lat,
+                            end_lng,
+                            Constants.GEOFENCE_RADIUS_IN_METERS
+                    )
+                    .setLoiteringDelay(5000)
+                    .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                            Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+                    .build());
+
             JSONArray steps = legs.getJSONObject(0).getJSONArray("steps");
+            total_geo+=steps.length()+1;
+            Log.i(TAG, "Total GeoFences: "+total_geo);
+
             for(int i=0; i<steps.length(); i++){
                 JSONObject poly = steps.getJSONObject(i).getJSONObject("polyline");
                 String points = poly.getString("points");
+                if(total_geo<=100){
+                    JSONObject start_loc = steps.getJSONObject(i).getJSONObject("start_location");
+                    Double start_lat = start_loc.getDouble("lat");
+                    Double start_lng = start_loc.getDouble("lng");
+                    JSONObject dist = steps.getJSONObject(i).getJSONObject("distance");
+                    dists.add(dist.getString("text"));
+                    JSONObject duration = steps.getJSONObject(i).getJSONObject("duration");
+                    times.add(duration.getString("text"));
+
+                    MapsActivity.directions.add(steps.getJSONObject(i).getString("html_instructions"));
+                    direction_points.add(new LatLng(start_lat, start_lng));
+                    mGeofenceList.add(new Geofence.Builder()
+                            .setRequestId("Direction "+i)
+                            .setCircularRegion(
+                                    start_lat,
+                                    start_lng,
+                                    Constants.GEOFENCE_RADIUS_IN_METERS_LARGER
+                            )
+                            .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                            .build());
+                }
                 polyline_points.addAll(PolyUtil.decode(points));
 //                Log.i(TAG, points);
             }
@@ -168,6 +234,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+//                        Toast.makeText(getApplicationContext(), toDisplay, Toast.LENGTH_SHORT).show();
+                        tbtNavigation.setText(Html.fromHtml(intent.getStringExtra(GeofenceTransitionsIntentService.DIRECTION_TEXT)));
+/*                        tbtTime.setText(Html.fromHtml(intent.getStringExtra(GeofenceTransitionsIntentService.DURATION_TEXT)));
+                        tbtDist.setText(Html.fromHtml(intent.getStringExtra(GeofenceTransitionsIntentService.DISTANCE_TEXT)));*/
+                    }
+                }, new IntentFilter(GeofenceTransitionsIntentService.ACTION_LOCATION_BROADCAST)
+        );
+
     }
 
     private GeofencingRequest getGeofencingRequest() {
@@ -187,6 +266,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         drawPolyLine(polyline_points, signal_coords);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        startService(new Intent(this, GeofenceTransitionsIntentService.class));
     }
 
     @Override
@@ -274,8 +359,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void startUpdates() {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(2000);
+        mLocationRequest.setInterval(1000);
+//        mLocationRequest.setFastestInterval(500);
         if(Build.VERSION.SDK_INT>=23) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -336,6 +421,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for(int i=0; i<signals.size(); i++){
             mMap.addMarker(new MarkerOptions().position(signals.get(i)).icon(BitmapDescriptorFactory.fromResource(R.drawable.traffic_signal)));
         }
+
+/*        for(int i=0; i<direction_points.size(); i++){
+            mMap.addMarker(new MarkerOptions().position(direction_points.get(i)));
+        }*/
+
+        mMap.addMarker(new MarkerOptions().position(end));
         mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
@@ -349,15 +440,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("POINT_KEYS", (ArrayList<? extends Parcelable>) polyline_points);
+//        outState.putParcelable("MAP", (Parcelable) mMap);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        polyline_points=savedInstanceState.getParcelableArrayList("POINT_KEYS");
+/*        polyline_points=savedInstanceState.getParcelableArrayList("POINT_KEYS");
         polylineOptions = new PolylineOptions();
         polyline = mMap.addPolyline(polylineOptions);
-        polyline.setPoints(polyline_points);
+        polyline.setPoints(polyline_points);*/
     }
 
     @Override
@@ -366,7 +458,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if(!first_time_navigate && mGeofenceList.size()!=0){
                 try {
-                    Networking.sendSignalChangeMessage(id,"-1",MapsActivity.signals.getJSONObject(0).getString("_id"),MapsActivity.signals.getJSONObject(0).getString("signalGroup"));
+                    if(MapsActivity.SIGNAL_LENGTH>0)
+                        Networking.sendSignalChangeMessage(id,"-1",MapsActivity.signals.getJSONObject(0).getString("_id"),MapsActivity.signals.getJSONObject(0).getString("signalGroup"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -387,18 +480,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
             first_time_navigate=true;
-            Toast.makeText(getApplicationContext(), "Starting Navigation", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Starting Navigation", Toast.LENGTH_SHORT).show();
             startNavigation.setVisibility(View.GONE);
-//            tbtNavigation.setVisibility(View.VISIBLE);
+            tbtNavigation.setVisibility(View.VISIBLE);
             stopNavigation.setVisibility(View.VISIBLE);
             navigation_flag=true;
             mMap.getUiSettings().setAllGesturesEnabled(false);
             mMap.getUiSettings().setCompassEnabled(false);
             RepositionCamera(mLastLocation);
         }else if(view.getId() == R.id.b_quit_navigation){
-            Toast.makeText(getApplicationContext(), "Stopping Navigation", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Stopping Navigation", Toast.LENGTH_SHORT).show();
             startNavigation.setVisibility(View.VISIBLE);
-//            tbtNavigation.setVisibility(View.GONE);
+            tbtNavigation.setVisibility(View.GONE);
             stopNavigation.setVisibility(View.GONE);
             navigation_flag=false;
             mMap.getUiSettings().setAllGesturesEnabled(true);
@@ -421,15 +514,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onResult(@NonNull Status status) {
         if (status.isSuccess()) {
-            Toast.makeText(
+            /*Toast.makeText(
                     this,
                     "Geofences Added",
                     Toast.LENGTH_SHORT
-            ).show();
+            ).show();*/
         } else {
             // Get the status code for the error and log it using a user-friendly message.
 //            String errorMessage = GeofenceErrorMessages.getErrorString(this,
 //                    status.getStatusCode());
         }
+    }
+    BroadcastReceiver finishAlert = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "From BR");
+            MapsActivity.this.finish();
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+        this.unregisterReceiver(finishAlert);
     }
 }

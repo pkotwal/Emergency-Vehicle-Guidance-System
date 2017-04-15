@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:text="Select Destination"
         android:layout_gravity="center"
+        android:background="@drawable/button_selector"
         android:id="@+id/b_pick_destination_select"/>
 
 
@@ -66,6 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="@drawable/button_selector"
         android:id="@+id/b_pick_destination_get_directions"
         android:text="Get Directions"/>
 

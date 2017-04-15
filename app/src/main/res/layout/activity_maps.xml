@@ -10,28 +10,31 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.pratik.locationtest.MapsActivity" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:visibility="gone"
-        android:id="@+id/tv_tbt_directions"
-        android:background="#ffffff"
-        android:text="Turn by Turn Navigation"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+    tools:context="com.pratik.locationtest.MapsActivity"
+    android:layout_above="@+id/tv_tbt_directions" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start Navigation"
         android:visibility="visible"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:keepScreenOn="true"
+        android:background="@drawable/button_selector"
         android:id="@+id/b_start_navigation"
+        android:layout_alignParentBottom="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:id="@+id/tv_tbt_directions"
+        android:background="#ffffff"
+        android:layout_height="80dp"
+        android:gravity="center"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/tv_tbt_directions"
-        android:layout_toEndOf="@+id/tv_tbt_directions" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -39,8 +42,14 @@
         android:text="Stop Navigation"
         android:id="@+id/b_quit_navigation"
         android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:background="@drawable/button_selector"
+        android:shadowColor="#333"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:keepScreenOn="true"
+        android:layout_above="@+id/tv_tbt_directions"
+        android:layout_toRightOf="@+id/b_start_navigation"
+        android:layout_toEndOf="@+id/b_start_navigation" />
+
 
 </RelativeLayout>

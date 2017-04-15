@@ -72,7 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.logo1)
+                .setSmallIcon(R.drawable.logo_notif)
                 .setContentTitle("Emergency Alert")
                 .setContentText("Emergency Reported at: "+messageBody)
                 .setAutoCancel(true)

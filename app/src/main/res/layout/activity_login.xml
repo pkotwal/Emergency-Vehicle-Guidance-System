@@ -8,6 +8,7 @@
 
     <TextView
         android:text="Name"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#000"
@@ -21,25 +22,35 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textCapWords"
             android:hint="First Name"
             android:background="#fff"
             android:padding="10dp"
             android:ems="10"
             android:layout_margin="2dp"
             android:layout_weight="1"
+            android:nextFocusForward="@+id/et_login_last_name"
+            android:nextFocusDown="@+id/et_login_last_name"
+            android:nextFocusLeft="@+id/et_login_last_name"
+            android:nextFocusRight="@+id/et_login_last_name"
+            android:nextFocusUp="@+id/et_login_last_name"
             android:id="@+id/et_login_name" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textCapWords"
             android:hint="Last Name"
             android:layout_margin="2dp"
             android:layout_weight="1"
             android:background="#fff"
             android:padding="10dp"
             android:ems="10"
+            android:nextFocusForward="@+id/et_login_vehicle_reg1"
+            android:nextFocusDown="@+id/et_login_vehicle_reg1"
+            android:nextFocusLeft="@+id/et_login_vehicle_reg1"
+            android:nextFocusRight="@+id/et_login_vehicle_reg1"
+            android:nextFocusUp="@+id/et_login_vehicle_reg1"
             android:id="@+id/et_login_last_name" />
 
     </LinearLayout>
@@ -48,6 +59,7 @@
         android:text="Vehicle Registration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:textColor="#000"
         android:textSize="20dp" />
 
@@ -62,44 +74,63 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textCapCharacters"
             android:ems="10"
             android:hint="MH"
+            android:maxLength="2"
             android:layout_weight="1.9"
             android:background="#fff"
             android:padding="10dp"
             android:layout_margin="2dp"
+            android:nextFocusForward="@+id/et_login_vehicle_reg2"
+            android:nextFocusDown="@+id/et_login_vehicle_reg2"
+            android:nextFocusLeft="@+id/et_login_vehicle_reg2"
+            android:nextFocusRight="@+id/et_login_vehicle_reg2"
+            android:nextFocusUp="@+id/et_login_vehicle_reg2"
             android:id="@+id/et_login_vehicle_reg1" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="number"
+            android:maxLength="2"
             android:ems="10"
             android:hint="01"
             android:background="#fff"
             android:padding="10dp"
             android:layout_margin="2dp"
             android:layout_weight="2"
+            android:nextFocusForward="@+id/et_login_vehicle_reg3"
+            android:nextFocusDown="@+id/et_login_vehicle_reg3"
+            android:nextFocusLeft="@+id/et_login_vehicle_reg3"
+            android:nextFocusRight="@+id/et_login_vehicle_reg3"
+            android:nextFocusUp="@+id/et_login_vehicle_reg3"
             android:id="@+id/et_login_vehicle_reg2" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textCapCharacters"
+            android:maxLength="2"
             android:layout_weight="2"
             android:ems="10"
             android:hint="AD"
             android:background="#fff"
             android:padding="10dp"
             android:layout_margin="2dp"
+            android:nextFocusForward="@+id/et_login_vehicle_reg4"
+            android:nextFocusDown="@+id/et_login_vehicle_reg4"
+            android:nextFocusLeft="@+id/et_login_vehicle_reg4"
+            android:nextFocusRight="@+id/et_login_vehicle_reg4"
+            android:nextFocusUp="@+id/et_login_vehicle_reg4"
             android:id="@+id/et_login_vehicle_reg3" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.55"
-            android:inputType="textPersonName"
+            android:inputType="number"
+            android:maxLength="4"
             android:ems="10"
             android:hint="1234"
             android:background="#fff"
@@ -111,6 +142,7 @@
 
     <TextView
         android:text="Vehicle Type"
+        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#000"
@@ -143,6 +175,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Submit"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/button_selector"
         android:layout_gravity="center"
         android:id="@+id/b_login_submit"/>
 </LinearLayout>

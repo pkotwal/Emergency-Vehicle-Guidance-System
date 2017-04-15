@@ -3,6 +3,7 @@ package com.pratik.locationtest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -16,6 +17,8 @@ public class FlashScreen extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
         setContentView(R.layout.activity_flash_screen);
         Bundle extras = getIntent().getExtras();
         if(extras!=null){

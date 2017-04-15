@@ -72,7 +72,7 @@ public class Networking {
     }
 
     public static void resetAllSignals(final String user_id){
-        Log.i("Networking Class", "Signal Change Method called");
+        Log.i("Networking Class", "Reset Method called");
         StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site+"/resetAll",
                 new Response.Listener<String>() {
                     @Override

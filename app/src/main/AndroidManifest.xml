@@ -42,9 +42,11 @@
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait" />
         <activity
+            android:label="EVGS - Login"
             android:name=".Login"
             android:screenOrientation="portrait" />
         <activity
+            android:label="EVGS - Pick Destination"
             android:name=".PickDestination"
             android:screenOrientation="portrait" />
 
@@ -70,6 +72,10 @@
         <service
             android:name=".FetchAddressIntentService"
             android:exported="false"/>
+
+        <activity android:name=".MyDialog"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            />
 
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more. -->
