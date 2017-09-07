@@ -26,6 +26,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     public static String ACTION_LOCATION_BROADCAST = GeofenceTransitionsIntentService.class.getName() + "LocationBroadcast";
 
     boolean destination_reached = false;
+
     public GeofenceTransitionsIntentService() {
         super(TAG);  // use TAG to name the IntentService worker thread
     }
@@ -41,38 +42,41 @@ public class GeofenceTransitionsIntentService extends IntentService {
 //        Log.i(TAG,"Handle Intent "+description);
 //        Toast.makeText(MapsActivity.this,description,Toast.LENGTH_SHORT).show();
         SharedPrefs prefs = new SharedPrefs(getApplicationContext());
-        String userID = prefs.getPrefs(SharedPrefs.USER_ID,null);
+        String userID = prefs.getPrefs(SharedPrefs.USER_ID, null);
 
-        if (destination_reached == false){
-            if(description.contains("End Directions")) {
-                Log.i(TAG, "End Direcions here");
-                destination_reached = true;
-                Intent dialogIntent = new Intent(getBaseContext(), MyDialog.class);
-                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplication().startActivity(dialogIntent);
-            }else if(description.contains("Signal") && description.contains("Entering")){
-                Log.i(TAG,"Entered Area Message not sent");
-            }else if(description.contains("Signal") && description.contains("Exiting")){
-                Log.i(TAG,"Exited Area Message sent");
+        if (destination_reached == false) {
+            if (description.contains("End Directions")) {
+                if (description.contains("Dwelling")) {
+                    Log.i(TAG, "End Direcions here");
+                    destination_reached = true;
+//                Log.i(TAG+" d", destination_reached+"");
+                    Intent dialogIntent = new Intent(getBaseContext(), ExitNavigationDialog.class);
+                    dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getApplication().startActivity(dialogIntent);
+                }
+            } else if (description.contains("Signal") && description.contains("Entering")) {
+                Log.i(TAG, "Entered Area Message not sent");
+            } else if (description.contains("Signal") && description.contains("Exiting")) {
+                Log.i(TAG, "Exited Area Message sent");
                 try {
-                    if(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")) < MapsActivity.SIGNAL_LENGTH-1)
+                    if (Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")) < MapsActivity.SIGNAL_LENGTH - 1)
                         Networking.sendSignalChangeMessage(userID,
                                 MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")))
                                         .getString("signalGroup"),
-                                MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", ""))+1)
+                                MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")) + 1)
                                         .getString("_id"),
-                                MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", ""))+1)
+                                MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")) + 1)
                                         .getString("signalGroup")
                         );
                     else
                         Networking.sendSignalChangeMessage(userID,
                                 MapsActivity.signals.getJSONObject(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Signal ", "")))
-                                        .getString("signalGroup"),"-1","-1");
+                                        .getString("signalGroup"), "-1", "-1");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else if(description.contains("Direction") && description.contains("Entering")){
-                Log.i(TAG,MapsActivity.directions.get(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Direction ", ""))));
+            } else if (description.contains("Direction") && description.contains("Entering")) {
+                Log.i(TAG, MapsActivity.directions.get(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Direction ", ""))));
                 sendBroadcastMessage(MapsActivity.directions.get(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Direction ", ""))),
                         MapsActivity.dists.get(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Direction ", ""))),
                         MapsActivity.times.get(Integer.parseInt(event.getTriggeringGeofences().get(0).getRequestId().replace("Direction ", ""))));
@@ -90,13 +94,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
             triggeringIDs.add(geofence.getRequestId());
         }
         String status = null;
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER )
+        if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
             status = "Entering ";
-        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT )
+        else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
             status = "Exiting ";
-        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL )
+        else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL)
             status = "Dwelling ";
-        return status + TextUtils.join( ", ", triggeringIDs);
+        return status + TextUtils.join(", ", triggeringIDs);
     }
 
     private void sendBroadcastMessage(String route, String dist, String time) {

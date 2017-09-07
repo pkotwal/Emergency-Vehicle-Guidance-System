@@ -28,6 +28,12 @@ public class SharedPrefs {
         editor.commit();
     }
 
+    public void delPrefs(){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+    }
+
     public String getPrefs(String key,String def){
         String value=pref.getString(key,def);
         return value;

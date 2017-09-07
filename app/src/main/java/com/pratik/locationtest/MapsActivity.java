@@ -76,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected ArrayList<Geofence> mGeofenceList;
 
-    public static final String FINISH_ALERT = "finish_alert";
+    public static final String FINISH_ALERT = "destination_reached_alert";
 
     private GoogleMap mMap;
     private static final String TAG = "MapsActivity";
@@ -178,7 +178,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             end_lng,
                             Constants.GEOFENCE_RADIUS_IN_METERS
                     )
-                    .setLoiteringDelay(5000)
+                    .setLoiteringDelay(2000)
                     .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                             Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)

@@ -11,19 +11,20 @@ import android.widget.Toast;
  * Created by Pratik on 17-03-2017.
  */
 
-public class MyDialog extends Activity {
+public class SignOutDialog extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Destination Reached");
-        alertDialog.setMessage("Do you want to exit navigation?");
+        alertDialog.setTitle("Sign Out");
+        alertDialog.setMessage("Are you sure you want to sign out?");
+        alertDialog.setCancelable(false);
         //alertDialog.setIcon(R.drawable.icon);
         alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
 //                Toast.makeText(getApplicationContext(),"User clicked OK button",Toast.LENGTH_SHORT ).show();
-                Intent i = new Intent(MapsActivity.FINISH_ALERT);
+                Intent i = new Intent(PickDestination.FINISH_ALERT);
                 sendBroadcast(i);
                 finish();
             }
@@ -31,6 +32,7 @@ public class MyDialog extends Activity {
         alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 //                Toast.makeText(getApplicationContext(),"User clicked No button",Toast.LENGTH_SHORT ).show();
+                finish();
             }
         });
         alertDialog.show();

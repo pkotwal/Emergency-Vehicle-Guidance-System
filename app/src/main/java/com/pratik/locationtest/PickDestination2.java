@@ -1,10 +1,8 @@
 package com.pratik.locationtest;
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -12,20 +10,13 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.os.ResultReceiver;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,8 +49,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PickDestination extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, LocationListener {
+public class PickDestination2 extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, LocationListener {
 
     final String TAG = "Place Picker";
     String id;
@@ -72,32 +62,13 @@ public class PickDestination extends AppCompatActivity
     private LocationRequest mLocationRequest;
     ProgressDialog dialog;
     String response, lat, lng;
-    PickDestination.AddressResultReceiver mResultReceiver;
+    AddressResultReceiver mResultReceiver;
     protected String mAddressOutput;
-    SharedPrefs sharedPrefs;
-
-    TextView userName, userVehicle;
-    ImageView vehicleImage;
-    LinearLayout NavLayout;
-
-    public static final String FINISH_ALERT = "signout_alert";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pick_destination_2);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
+        setContentView(R.layout.activity_pick_destination);
         selectedDestination = (TextView) findViewById(R.id.tv_pick_destination_selected_destination);
         selectedSource = (TextView) findViewById(R.id.tv_pick_destination_selected_source);
         selectedSourceAddr = (TextView) findViewById(R.id.tv_pick_destination_selected_source_addr);
@@ -107,50 +78,27 @@ public class PickDestination extends AppCompatActivity
         selectLocation = (Button) findViewById(R.id.b_pick_destination_select);
         selectLocation.setOnClickListener(this);
         getDirections.setOnClickListener(this);
-        dialog = new ProgressDialog(this);
+        dialog=new ProgressDialog(this);
 
-        this.registerReceiver(this.finishAlert, new IntentFilter(FINISH_ALERT));
-        View headerLayout = navigationView.getHeaderView(0);
-
-        userName = (TextView) headerLayout.findViewById(R.id.NavName);
-        userVehicle = (TextView) headerLayout.findViewById(R.id.NavVehicleNum);
-        vehicleImage = (ImageView) headerLayout.findViewById(R.id.NavimageView);
-        NavLayout = (LinearLayout) headerLayout.findViewById(R.id.NavLinearLayout);
-
-        sharedPrefs = new SharedPrefs(this);
-        userVehicle.setText(sharedPrefs.getPrefs(SharedPrefs.VEHICLE_REGISTRATION, null));
-        userName.setText(sharedPrefs.getPrefs(SharedPrefs.NAME, null));
-        String vehicle_type = sharedPrefs.getPrefs(SharedPrefs.VEHICLE_TYPE, null);
-
-        if (vehicle_type.contentEquals("Ambulance")) {
-            vehicleImage.setImageResource(R.drawable.ambulance1);
-//            NavLayout.setBackgroundResource(R.drawable.gradient_ambulance);
-        } else if (vehicle_type.contentEquals("Police Vehicle")) {
-            vehicleImage.setImageResource(R.drawable.police1);
-//            NavLayout.setBackgroundResource(R.drawable.gradient_police);
-        } else if (vehicle_type.contentEquals("Fire Truck")) {
-            vehicleImage.setImageResource(R.drawable.firetruck1);
-//            NavLayout.setBackgroundResource(R.drawable.gradient_fire);
-        }
-
-        sourseSet = 0;
-        destinationSet = 0;
-        mResultReceiver = new PickDestination.AddressResultReceiver(new Handler());
+        sourseSet=0;
+        destinationSet=0;
+        mResultReceiver = new AddressResultReceiver(new Handler());
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if(extras!=null){
             response = extras.getString("Data");
             String[] loc = response.split(",");
-            lat = loc[0];
-            lng = loc[1];
-            selectedDestination.setText(lat + " , " + lng);
-            dLocation = new Location("");
+            lat=loc[0];
+            lng=loc[1];
+            selectedDestination.setText(lat+" , "+lng);
+            dLocation= new Location("");
             dLocation.setLatitude(Double.parseDouble(lat));
             dLocation.setLongitude(Double.parseDouble(lng));
-            destinationSet = 1;
+            destinationSet=1;
             startIntentService(dLocation);
         }
 
+        SharedPrefs sharedPrefs = new SharedPrefs(this);
         id = sharedPrefs.getPrefs(SharedPrefs.USER_ID, null);
 
         mGoogleApiClient = new GoogleApiClient
@@ -162,32 +110,6 @@ public class PickDestination extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        final int selected_id = item.getItemId();
-        if (selected_id == R.id.nav_sign_out) {
-            Intent dialogIntent = new Intent(getBaseContext(), SignOutDialog.class);
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getApplication().startActivity(dialogIntent);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     protected void onStart() {
@@ -207,7 +129,7 @@ public class PickDestination extends AppCompatActivity
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.b_pick_destination_select) {
+        if(view.getId() == R.id.b_pick_destination_select){
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
             try {
@@ -217,16 +139,16 @@ public class PickDestination extends AppCompatActivity
             } catch (GooglePlayServicesNotAvailableException e) {
                 e.printStackTrace();
             }
-        } else if (view.getId() == R.id.b_pick_destination_get_directions) {
-            if (sourseSet == 0) {
-                Toast.makeText(PickDestination.this, "Location not yet found", Toast.LENGTH_SHORT).show();
-            } else if (destinationSet == 0) {
-                Toast.makeText(PickDestination.this, "Destination not yet set", Toast.LENGTH_SHORT).show();
-            } else {
+        }else if(view.getId() == R.id.b_pick_destination_get_directions){
+            if(sourseSet==0){
+                Toast.makeText(PickDestination2.this, "Location not yet found", Toast.LENGTH_SHORT).show();
+            }else if (destinationSet==0){
+                Toast.makeText(PickDestination2.this, "Destination not yet set", Toast.LENGTH_SHORT).show();
+            }else{
                 dialog.displayDialog("Getting Directions...");
-                Log.i(TAG, "Source: " + sLocation.getLatitude() + " , " + sLocation.getLongitude());
-                Log.i(TAG, "Destination: " + dLocation.getLatitude() + " , " + dLocation.getLongitude());
-                StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site + "/directionRequest",
+                Log.i(TAG,"Source: "+sLocation.getLatitude()+" , "+sLocation.getLongitude());
+                Log.i(TAG,"Destination: "+dLocation.getLatitude()+" , "+dLocation.getLongitude());
+                StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site+"/directionRequest",
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -236,11 +158,11 @@ public class PickDestination extends AppCompatActivity
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String status = jsonObject.getString("status");
-                                    if (status.contentEquals("SUCCESS")) {
-                                        Intent intent = new Intent(PickDestination.this, MapsActivity.class);
+                                    if(status.contentEquals("SUCCESS")){
+                                        Intent intent = new Intent(PickDestination2.this, MapsActivity.class);
                                         intent.putExtra("Directions", response);
                                         startActivity(intent);
-                                    } else {
+                                    }else{
                                         Toast.makeText(getApplicationContext(), "No routes found", Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (JSONException e) {
@@ -250,10 +172,9 @@ public class PickDestination extends AppCompatActivity
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        dialog.dismissDialog();
-                        Toast.makeText(PickDestination.this, "Please try again later.", Toast.LENGTH_SHORT).show();
+
                     }
-                }) {
+                }){
                     @Override
                     protected Map<String, String> getParams() {
                         Map<String, String> params = new HashMap<>();
@@ -286,7 +207,7 @@ public class PickDestination extends AppCompatActivity
             @Override
             public void onResult(LocationSettingsResult result) {
                 final Status status = result.getStatus();
-                final LocationSettingsStates locationSettingsStates = result.getLocationSettingsStates();
+                final LocationSettingsStates locationSettingsStates= result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
                         // All location settings are satisfied. The client can
@@ -299,7 +220,7 @@ public class PickDestination extends AppCompatActivity
                             // Show the dialog by calling startResolutionForResult(),
                             // and check the result in onActivityResult().
                             status.startResolutionForResult(
-                                    PickDestination.this,
+                                    PickDestination2.this,
                                     0x1);
                         } catch (IntentSender.SendIntentException e) {
                             // Ignore the error.
@@ -320,7 +241,7 @@ public class PickDestination extends AppCompatActivity
         mLocationRequest.setInterval(10000);
         mLocationRequest.setSmallestDisplacement(100);
         mLocationRequest.setFastestInterval(3000);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -336,7 +257,7 @@ public class PickDestination extends AppCompatActivity
                     selectedDestination.setText(place.getName());
                     selectedDestinationAddr.setText(place.getAddress());
                     selectLocation.setText("Change Destination");
-                    destinationSet = 1;
+                    destinationSet=1;
 
                     dLocation = new Location(LocationManager.GPS_PROVIDER);
                     dLocation.setLatitude(place.getLatLng().latitude);
@@ -376,13 +297,13 @@ public class PickDestination extends AppCompatActivity
             sLocation.setLatitude(mLastLocation.getLatitude());
             sLocation.setLongitude(mLastLocation.getLongitude());
 
-            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()));
-            Log.i(TAG, String.valueOf(mLastLocation.getLongitude()));
-            selectedSource.setText(String.valueOf(mLastLocation.getLatitude()) + " , " + String.valueOf(mLastLocation.getLongitude()));
-            sourseSet = 1;
+            Log.i(TAG,String.valueOf(mLastLocation.getLatitude()));
+            Log.i(TAG,String.valueOf(mLastLocation.getLongitude()));
+            selectedSource.setText(String.valueOf(mLastLocation.getLatitude())+" , "+ String.valueOf(mLastLocation.getLongitude()));
+            sourseSet=1;
             Networking.sendLocationUpdate(id, String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()), String.valueOf(location.getBearing()));
 
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
             PendingResult<PlaceLikelihoodBuffer> result2 = Places.PlaceDetectionApi
@@ -390,7 +311,7 @@ public class PickDestination extends AppCompatActivity
             result2.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
                 @Override
                 public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                    if (likelyPlaces.getCount() > 0) {
+                    if(likelyPlaces.getCount()>0){
                         Log.i(TAG, String.format("Place '%s'",
                                 likelyPlaces.get(0).getPlace().getAddress()));
                         selectedSourceAddr.setText(likelyPlaces.get(0).getPlace().getAddress());
@@ -423,7 +344,7 @@ public class PickDestination extends AppCompatActivity
         }
 
         /**
-         * Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
+         *  Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
          */
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -431,59 +352,8 @@ public class PickDestination extends AppCompatActivity
             // Display the address string or an error message sent from the intent service.
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
             Log.i(TAG, mAddressOutput);
-            mAddressOutput = mAddressOutput.replace('\n', ' ');
+            mAddressOutput = mAddressOutput.replace('\n',' ');
             selectedDestinationAddr.setText(mAddressOutput);
         }
-    }
-
-    BroadcastReceiver finishAlert = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "From BR");
-
-            //            Toast.makeText(PickDestination.this, "Signout", Toast.LENGTH_SHORT).show();
-            dialog.displayDialog("Signing Out...");
-            StringRequest request = new StringRequest(Request.Method.POST, ApiDetails.connect_site + "/signout",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.i(TAG, response);
-                            try {
-                                JSONObject jsonResponse = new JSONObject(response);
-                                dialog.dismissDialog();
-                                String status = jsonResponse.getString("status");
-                                if (status.contentEquals("SUCCESS")) {
-                                    sharedPrefs.delPrefs();
-                                    startActivity(new Intent(PickDestination.this, FlashScreen.class));
-                                    finish();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<>();
-                    // the POST parameters:
-                    params.put("userId", id);
-                    return params;
-                }
-            };
-            AppController.getInstance().addToRequestQueue(request);
-        }
-    };
-
-    @Override
-    public void onDestroy() {
-
-        super.onDestroy();
-        this.unregisterReceiver(finishAlert);
     }
 }
