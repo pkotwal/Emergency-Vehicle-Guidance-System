@@ -6,6 +6,8 @@ A video demonstration of the project can be found here: https://drive.google.com
 
 Presentaition explaining the working of the systen can be found here: https://drive.google.com/open?id=10ATAXcOUyuYeKQIIQL8EvBtuiihmzHRfV8E7silNzEU
 
+Technical paper for the same can be found here: https://drive.google.com/open?id=1l0Jcj7MrLk536pX4hee_mTCbRhcuLbVf
+
 Server code for the project: https://github.com/pkotwal/Emergency-Vehicle-Guidance-System-Server
 
 Link to website: http://emergency-vehicle.herokuapp.com/
