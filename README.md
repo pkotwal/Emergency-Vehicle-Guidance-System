@@ -14,11 +14,11 @@ Link to website: http://emergency-vehicle.herokuapp.com/
 
 ## Key Features
 ### Android Application
-- Registeration, only few certified Emergency Vehicles are authorized, based on registration number
+- Registration, only few certified Emergency Vehicles are authorized, based on registration number
 - Users search for destination and get directions directly within app
 - User is notified if control center sets emergency point and that is the closest emergency vehicle, via push notification
 - User can pick destination on map
-- Users can view turn by turn navigations and view traffic signals crossed
+- Users can view turn by turn navigation and view traffic signals crossed
 - Location of device is constantly tracked while in use to determine which traffic signal must be preempted
 
 ### Control Center
